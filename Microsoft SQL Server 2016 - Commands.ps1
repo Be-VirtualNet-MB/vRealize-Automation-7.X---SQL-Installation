@@ -27,11 +27,31 @@ Format-Volume -DriveLetter F -FileSystem NTFS -NewFileSystemLabel "Logs" -Confir
 Add-LocalGroupMember -Group "Administrators" -Member "svc-vra-iaas"
 Add-LocalGroupMember -Group "Administrators" -Member "svc-vra-sql"
 
-##### Windows Firewall - Allow Microsoft SQL
-New-NetFirewallRule -DisplayName "Microsoft SQL Server 2016 - SQL - TCP" -Direction Inbound -LocalPort 1433 -Protocol TCP -Action Allow
+##### Windows Firewall
+
+    ### Windows Firewall - Allow Microsoft SQL Port 1433 TCP
+    New-NetFirewallRule -DisplayName "Microsoft SQL Server 2016 - SQL - TCP" -Direction Inbound -LocalPort 1433 -Protocol TCP -Action Allow
+
+    ### Windows Firewall - Enable rule for RPC for DTC
+    Enable-NetFirewallRule -DisplayName "Distributed Transaction Coordinator (RPC-EPMAP)"
+
+    ### Windows Firewall - Enable rule for Incoming DTC
+    Enable-NetFirewallRule -DisplayName "Distributed Transaction Coordinator (TCP-In)"
+
+    ### Windows Firewall - Enable rule for Outgoing DTC
+    Enable-NetFirewallRule -DisplayName "Distributed Transaction Coordinator (TCP-Out)"
 
 ##### Microsoft SQL Management Studio
 C:\Temp\SSMS-Setup-ENU.exe /install /passive /norestart
 
 ##### Microsoft SQL Server 2016
 B:\Setup.exe /ConfigurationFile="C:\Temp\Microsoft SQL Server 2016 - Configuration.ini"
+
+##### Reboot the server
+shutdown -r -t 0
+
+##### Configure the Microsoft Distributed Transaction Coordinator (DTC)
+Set-DtcNetworkSetting -DtcName "Local" -RemoteClientAccessEnabled:$true -RemoteAdministrationAccessEnabled:$false -AuthenticationLevel "Mutual" -InboundTransactionsEnabled:$true -OutboundTransactionsEnabled:$true -XATransactionsEnabled:$false -LUTransactionsEnabled:$true -Confirm:$false
+
+##### Reboot the server
+shutdown -r -t 0
