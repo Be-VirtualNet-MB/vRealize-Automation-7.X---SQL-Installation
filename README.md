@@ -1,4 +1,4 @@
-# vRealize Automation 7.X - SQL-Installation
+# vRealize Automation 7.X - SQL Installation
 
 ## Overview
 vRealize Automation 7.X installation of the SQL Server with some automated commands.
